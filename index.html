@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIS Deck Generator · CA Mayur Jain</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<style>
+  :root {
+    --navy: #1a2456;
+    --navy-dark: #111a3e;
+    --navy-mid: #243066;
+    --ice: #c8d8f8;
+    --teal: #0e6b52;
+    --teal-light: #dff4ed;
+    --amber: #b87214;
+    --amber-light: #fdf0d8;
+    --red: #9e2c2c;
+    --red-light: #fceaea;
+    --gold: #c9a84c;
+    --off-white: #f6f5f1;
+    --warm-gray: #e8e6e0;
+    --text: #1a1a1a;
+    --text-mid: #4a4a52;
+    --text-muted: #888;
+    --border: #e0ddd6;
+    --white: #ffffff;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+ 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--text);
+    min-height: 100vh;
+  }
+ 
+  /* NAV */
+  nav {
+    background: var(--navy);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo {
+    width: 32px; height: 32px;
+    background: var(--gold);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    color: var(--navy);
+    font-weight: 400;
+  }
+  .nav-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: 0.01em;
+  }
+  .nav-sub {
+    font-size: 11px;
+    color: var(--ice);
+    opacity: 0.7;
+  }
+  .nav-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--ice);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+ 
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    padding: 4rem 2.5rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.07);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(200,216,248,0.05);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+    max-width: 620px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero-desc {
+    font-size: 15px;
+    color: var(--ice);
+    opacity: 0.8;
+    line-height: 1.75;
+    max-width: 520px;
+    margin-bottom: 2rem;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 11px 26px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-gold:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ice);
+    border: 1px solid rgba(200,216,248,0.35);
+    padding: 11px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.07); }
+ 
+  /* STATS BAR */
+  .stats-bar {
+    background: var(--navy-dark);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 1rem 2.5rem;
+  }
+  .stats-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .stat-item { display: flex; align-items: center; gap: 10px; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--gold);
+  }
+  .stat-label { font-size: 12px; color: var(--ice); opacity: 0.6; line-height: 1.4; }
+ 
+  /* MAIN CONTENT */
+  .main { max-width: 780px; margin: 0 auto; padding: 2.5rem 2.5rem 4rem; }
+ 
+  /* HOW IT WORKS */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .steps-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .step-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1rem;
+    position: relative;
+  }
+  .step-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--warm-gray);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .step-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+ 
+  /* TOOL CARD */
+  .tool-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  .tool-card-header {
+    background: var(--navy);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tool-card-header-icon {
+    width: 28px; height: 28px;
+    background: rgba(201,168,76,0.2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tool-card-header-icon svg { width: 14px; height: 14px; stroke: var(--gold); }
+  .tool-card-title { font-size: 13px; font-weight: 500; color: #fff; }
+  .tool-card-sub { font-size: 11px; color: var(--ice); opacity: .6; }
+  .tool-card-body { padding: 1.5rem; }
+ 
+  /* HINT BOX */
+  .hint-box {
+    background: #f0f4ff;
+    border: 1px solid #d0daf5;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 1.25rem;
+    font-size: 12px;
+    color: #3a4a8a;
+    line-height: 1.6;
+  }
+  .hint-box strong { color: #1a2456; }
+  .col-tag {
+    display: inline-block;
+    background: rgba(26,36,86,0.08);
+    border: 1px solid rgba(26,36,86,0.12);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 10px;
+    color: #1a2456;
+    margin: 1px;
+    font-weight: 500;
+  }
+ 
+  /* UPLOAD GRID */
+  .upload-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .upload-box {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    position: relative;
+  }
+  .upload-box:hover { border-color: #aaa; background: var(--off-white); }
+  .upload-box.has-file { border-style: solid; border-color: var(--teal); background: var(--teal-light); }
+  .upload-box.has-file .ulabel { color: var(--teal); }
+  .upload-box input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .u-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    margin: 0 auto 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .u-icon svg { width: 18px; height: 18px; }
+  .ulabel { font-size: 12px; font-weight: 600; color: var(--text); display: block; margin-bottom: 3px; }
+  .uhint { font-size: 10px; color: var(--text-muted); }
+ 
+  /* META ROW */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .field-label { font-size: 11px; font-weight: 500; color: var(--text-mid); margin-bottom: 5px; }
+  input[type=text], input[type=month] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    transition: border-color .15s;
+  }
+  input[type=text]:focus, input[type=month]:focus { border-color: var(--navy); }
+ 
+  /* PREVIEW */
+  .preview-section { margin-top: 1.25rem; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .tab {
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .preview-table th { background: var(--off-white); padding: 6px 10px; text-align: left; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+  .preview-table td { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .preview-table tr:last-child td { border-bottom: none; }
+ 
+  /* GENERATE */
+  .gen-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .status-bar {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .status-bar.info { background: #e8f0fe; color: #1a4baa; border: 1px solid #c5d5f8; }
+  .status-bar.success { background: var(--teal-light); color: var(--teal); border: 1px solid #9fe1cb; }
+  .status-bar.error { background: var(--red-light); color: var(--red); border: 1px solid #f5c1c1; }
+  .progress-wrap { display: none; margin-bottom: 1rem; }
+  .progress-track { height: 3px; background: var(--warm-gray); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: var(--teal); width: 0%; transition: width .3s; }
+  .progress-label { font-size: 11px; color: var(--text-muted); }
+  .generate-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    letter-spacing: 0.01em;
+  }
+  .generate-btn:hover { opacity: .88; transform: translateY(-1px); }
+  .generate-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+ 
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .feat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+  }
+  .feat-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+  .feat-icon svg { width: 16px; height: 16px; }
+  .feat-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .feat-desc { font-size: 11px; color: var(--text-muted); line-height: 1.65; }
+ 
+  /* SLIDES PREVIEW */
+  .slides-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    gap: 8px;
+    margin-bottom: 2.5rem;
+  }
+  .slide-thumb { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .slide-thumb-hdr { height: 16px; background: var(--navy); display: flex; align-items: center; padding: 0 5px; gap: 3px; }
+  .sdot { width: 4px; height: 4px; border-radius: 50%; background: var(--ice); opacity: .4; }
+  .slide-thumb-body { padding: 6px; background: #fafafa; min-height: 46px; }
+  .slide-lbl { font-size: 10px; color: var(--text-muted); text-align: center; padding: 4px 0 2px; }
+ 
+  /* COLUMNS TABLE */
+  .cols-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 2.5rem; }
+  .cols-table th { background: var(--off-white); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--text-mid); border-bottom: 1px solid var(--border); font-size: 11px; }
+  .cols-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .cols-table tr:last-child td { border-bottom: none; }
+ 
+  /* FOOTER */
+  .site-footer {
+    background: var(--navy-dark);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 2rem 2.5rem;
+  }
+  .footer-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-brand { display: flex; align-items: center; gap: 12px; }
+  .footer-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.15);
+    border: 1.5px solid rgba(201,168,76,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 14px;
+    color: var(--gold);
+  }
+  .footer-name { font-size: 14px; font-weight: 500; color: #fff; }
+  .footer-title { font-size: 11px; color: var(--ice); opacity: .6; margin-top: 2px; }
+  .footer-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .footer-tag {
+    font-size: 10px;
+    color: var(--ice);
+    opacity: .5;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+ 
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 2rem 0; }
+ 
+  /* TOOL TABS */
+  .tool-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+  .tool-tab {
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tool-tab svg { width: 14px; height: 14px; }
+  .tool-tab:hover { color: var(--text); }
+  .tool-tab.active { color: var(--navy); border-bottom-color: var(--navy); font-weight: 600; }
+  .tool-tab.active svg { stroke: var(--navy); }
+  .tool-pane { display: none; }
+  .tool-pane.active { display: block; }
+ 
+  /* TEMPLATE CARDS */
+  .tpl-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-bottom: 1.5rem; }
+  .tpl-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .tpl-card:hover { border-color: #aaa; }
+  .tpl-card-top { padding: 1.1rem 1.1rem 0.8rem; }
+  .tpl-sheet-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+  }
+  .tpl-sheet-icon svg { width: 20px; height: 20px; }
+  .tpl-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .tpl-desc { font-size: 11px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+  .tpl-cols { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 12px; }
+  .tpl-col-chip {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .tpl-rows-note { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+  .tpl-dl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 9px 0;
+    background: var(--off-white);
+    border: none;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background .15s;
+  }
+  .tpl-dl-btn:hover { background: var(--warm-gray); }
+  .tpl-dl-btn svg { width: 13px; height: 13px; stroke: var(--navy); }
+  .tpl-bundle-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity .15s;
+    margin-top: 4px;
+  }
+  .tpl-bundle-btn:hover { opacity: .88; }
+  .tpl-bundle-btn svg { width: 14px; height: 14px; stroke: #fff; }
+  .tpl-note { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; line-height: 1.6; }
+ 
+  @media (max-width: 600px) {
+    .upload-grid, .features-grid, .steps-row { grid-template-columns: 1fr 1fr; }
+    .slides-row { grid-template-columns: repeat(3,1fr); }
+    .meta-row { grid-template-columns: 1fr; }
+    nav { padding: 0 1.25rem; }
+    .hero { padding: 2.5rem 1.25rem 2rem; }
+    .main { padding: 2rem 1.25rem 3rem; }
+    .stats-bar { padding: 1rem 1.25rem; }
+    .site-footer { padding: 1.5rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">MJ</div>
+    <div>
+      <div class="nav-name">CA Mayur Jain</div>
+      <div class="nav-sub">For Finance Professionals</div>
+    </div>
+  </div>
+  <div class="nav-pill">MIS Deck Generator · v1.0</div>
+</nav>
+ 
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Monthly MIS Reporting Tool</div>
+    <h1>Management deck,<br><em>generated in seconds</em></h1>
+    <p class="hero-desc">Upload your Sales, KPI and Finance data files — get a fully formatted PowerPoint management report, boardroom-ready. No manual formatting. No copy-paste.</p>
+    <div class="hero-actions">
+      <a href="#tool" class="btn-gold">Open the tool ↓</a>
+      <a href="#samples" class="btn-ghost">View sample columns</a>
+    </div>
+  </div>
+</div>
+ 
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Slides<br>generated</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Data<br>modules</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">.xlsx</div>
+      <div class="stat-label">Native PowerPoint<br>output</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Sign-up<br>required</div>
+    </div>
+  </div>
+</div>
+ 
+<div class="main">
+ 
+  <!-- HOW IT WORKS -->
+  <div class="section-label" style="margin-top:.5rem">How it works</div>
+  <div class="steps-row">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-title">Prepare your data</div>
+      <div class="step-desc">Fill in Sales, KPI and Finance CSVs with your monthly actuals and targets.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-title">Upload files</div>
+      <div class="step-desc">Drop your CSV or Excel files into the uploader — all three sections are optional.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-title">Set report details</div>
+      <div class="step-desc">Choose the report month and enter your company or entity name.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <div class="step-title">Generate & present</div>
+      <div class="step-desc">Click Generate — a branded .pptx downloads instantly, ready for your boardroom.</div>
+    </div>
+  </div>
+ 
+  <!-- FEATURES -->
+  <div class="section-label">What you get</div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#eef1fc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1a2456" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      </div>
+      <div class="feat-title">5 professional slides</div>
+      <div class="feat-desc">Title, Sales overview, KPI dashboard, Finance P&L, and closing summary — auto-built from your data.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--teal-light)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0e6b52" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="feat-title">Live charts & KPI cards</div>
+      <div class="feat-desc">Native PowerPoint bar, line and pie charts with color-coded cards — green, amber or red by performance.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--amber-light)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#b87214" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="feat-title">CSV & Excel input</div>
+      <div class="feat-desc">Upload .csv or .xlsx files. Column names are auto-detected — no rigid template required.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--teal-light)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0e6b52" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="feat-title">One-click generation</div>
+      <div class="feat-desc">Set month and company name, click Generate — your file downloads in seconds. No sign-up needed.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#eef1fc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1a2456" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="feat-title">Fully editable output</div>
+      <div class="feat-desc">The .pptx is a standard PowerPoint file — edit layouts, add branding, or tweak charts after generation.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--red-light)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#9e2c2c" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div class="feat-title">Finance-focused design</div>
+      <div class="feat-desc">Built for CFOs, FP&A and management accountants — metrics, margins and P&L structured for decisions.</div>
+    </div>
+  </div>
+ 
+  <!-- SLIDE PREVIEWS -->
+  <div class="section-label">Slides generated</div>
+  <div class="slides-row">
+    <div>
+      <div class="slide-thumb">
+        <div class="slide-thumb-hdr"><div class="sdot"></div></div>
+        <div class="slide-thumb-body" style="background:#1a2456;padding:8px 6px">
+          <div style="height:3px;width:38%;background:#c8d8f8;border-radius:2px;margin-bottom:5px;opacity:.45"></div>
+          <div style="height:7px;width:72%;background:#fff;border-radius:2px;margin-bottom:4px"></div>
+          <div style="height:3px;width:48%;background:#c9a84c;border-radius:2px;opacity:.8"></div>
+        </div>
+      </div>
+      <div class="slide-lbl">Title</div>
+    </div>
+    <div>
+      <div class="slide-thumb">
+        <div class="slide-thumb-hdr"><div class="sdot"></div></div>
+        <div class="slide-thumb-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px">
+            <div style="height:12px;background:var(--teal-light);border-radius:2px"></div>
+            <div style="height:12px;background:#eef1fc;border-radius:2px"></div>
+          </div>
+          <div style="display:flex;gap:2px;align-items:flex-end;height:22px">
+            <div style="flex:1;background:#1D9E75;border-radius:1px;height:55%"></div>
+            <div style="flex:1;background:#1D9E75;border-radius:1px;height:80%"></div>
+            <div style="flex:1;background:#1D9E75;border-radius:1px;height:70%"></div>
+            <div style="flex:1;background:#1D9E75;border-radius:1px;height:100%"></div>
+            <div style="flex:1;background:#e8a020;border-radius:1px;height:50%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-lbl">Sales</div>
+    </div>
+    <div>
+      <div class="slide-thumb">
+        <div class="slide-thumb-hdr"><div class="sdot"></div></div>
+        <div class="slide-thumb-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:3px">
+            <div style="height:14px;background:var(--teal-light);border-radius:2px"></div>
+            <div style="height:14px;background:var(--amber-light);border-radius:2px"></div>
+            <div style="height:14px;background:var(--red-light);border-radius:2px"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px">
+            <div style="height:12px;background:var(--teal-light);border-radius:2px"></div>
+            <div style="height:12px;background:var(--teal-light);border-radius:2px"></div>
+            <div style="height:12px;background:var(--amber-light);border-radius:2px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-lbl">KPIs</div>
+    </div>
+    <div>
+      <div class="slide-thumb">
+        <div class="slide-thumb-hdr"><div class="sdot"></div></div>
+        <div class="slide-thumb-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px">
+            <div style="height:12px;background:var(--teal-light);border-radius:2px"></div>
+            <div style="height:12px;background:var(--amber-light);border-radius:2px"></div>
+          </div>
+          <svg viewBox="0 0 60 20" style="width:100%;height:24px">
+            <polyline points="0,18 10,14 20,10 30,7 40,5 50,4 60,6" fill="none" stroke="#0e6b52" stroke-width="1.5"/>
+            <polyline points="0,18 10,16 20,14 30,16 40,13 50,12 60,14" fill="none" stroke="#b87214" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="slide-lbl">Finance</div>
+    </div>
+    <div>
+      <div class="slide-thumb">
+        <div class="slide-thumb-hdr"><div class="sdot"></div></div>
+        <div class="slide-thumb-body" style="background:#1a2456;padding:8px 6px">
+          <div style="height:3px;width:55%;background:#c8d8f8;border-radius:2px;margin-bottom:5px;opacity:.4"></div>
+          <div style="height:3px;width:88%;background:#c8d8f8;border-radius:2px;margin-bottom:3px;opacity:.5"></div>
+          <div style="height:3px;width:74%;background:#c8d8f8;border-radius:2px;margin-bottom:3px;opacity:.5"></div>
+          <div style="height:3px;width:60%;background:#c9a84c;border-radius:2px;opacity:.6"></div>
+        </div>
+      </div>
+      <div class="slide-lbl">Summary</div>
+    </div>
+  </div>
+ 
+  <!-- TOOL -->
+  <div id="tool"></div>
+  <div class="section-label">The tool</div>
+ 
+  <!-- TOOL CARD WITH TABS -->
+  <div class="tool-card" style="margin-bottom:1rem">
+    <div class="tool-card-header">
+      <div class="tool-card-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="#c9a84c"/></svg>
+      </div>
+      <div>
+        <div class="tool-card-title">MIS Data Tool</div>
+        <div class="tool-card-sub">Download templates, then upload your filled data</div>
+      </div>
+    </div>
+ 
+    <!-- TABS -->
+    <div class="tool-tabs">
+      <button class="tool-tab active" onclick="switchToolTab('upload',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1a2456" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload data
+      </button>
+      <button class="tool-tab" onclick="switchToolTab('templates',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Download templates
+      </button>
+    </div>
+ 
+    <!-- UPLOAD PANE -->
+    <div class="tool-pane active" id="pane-upload">
+      <div class="tool-card-body">
+        <div class="hint-box">
+          <strong>Expected columns:</strong><br>
+          Sales: <span class="col-tag">Month</span><span class="col-tag">Revenue</span><span class="col-tag">Target</span><span class="col-tag">Region</span><span class="col-tag">Product</span>&nbsp;&nbsp;
+          KPIs: <span class="col-tag">KPI</span><span class="col-tag">Actual</span><span class="col-tag">Target</span><span class="col-tag">Unit</span>&nbsp;&nbsp;
+          Finance: <span class="col-tag">Month</span><span class="col-tag">Revenue</span><span class="col-tag">COGS</span><span class="col-tag">Opex</span><span class="col-tag">EBITDA</span>
+          &nbsp; — <a href="#" onclick="switchToolTabById('templates');return false;" style="color:var(--navy);font-weight:600;font-size:11px">Download templates ↓</a>
+        </div>
+        <div class="upload-grid">
+          <div class="upload-box" id="box-sales">
+            <div class="u-icon" style="background:#eef1fc">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#1a2456" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+            </div>
+            <span class="ulabel" id="lbl-sales">Sales & Revenue</span>
+            <span class="uhint">sales.csv / .xlsx</span>
+            <input type="file" accept=".csv,.xlsx,.xls" onchange="handleFile('sales',this)">
+          </div>
+          <div class="upload-box" id="box-kpi">
+            <div class="u-icon" style="background:var(--teal-light)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0e6b52" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+            </div>
+            <span class="ulabel" id="lbl-kpi">Operations / KPIs</span>
+            <span class="uhint">kpis.csv / .xlsx</span>
+            <input type="file" accept=".csv,.xlsx,.xls" onchange="handleFile('kpi',this)">
+          </div>
+          <div class="upload-box" id="box-finance">
+            <div class="u-icon" style="background:var(--amber-light)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#b87214" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span class="ulabel" id="lbl-finance">Finance / P&L</span>
+            <span class="uhint">finance.csv / .xlsx</span>
+            <input type="file" accept=".csv,.xlsx,.xls" onchange="handleFile('finance',this)">
+          </div>
+        </div>
+        <div class="meta-row">
+          <div>
+            <div class="field-label">Report month</div>
+            <input type="month" id="report-month">
+          </div>
+          <div>
+            <div class="field-label">Company / entity name</div>
+            <input type="text" id="company-name" placeholder="e.g. Acme Corp">
+          </div>
+        </div>
+        <div id="preview-section" style="display:none">
+          <div class="section-label" style="margin-top:.25rem">Data preview</div>
+          <div class="tabs" id="preview-tabs"></div>
+          <div style="overflow-x:auto" id="preview-content"></div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- TEMPLATES PANE -->
+    <div class="tool-pane" id="pane-templates">
+      <div class="tool-card-body">
+        <div class="tpl-grid">
+ 
+          <!-- Sales Template -->
+          <div class="tpl-card">
+            <div class="tpl-card-top">
+              <div class="tpl-sheet-icon" style="background:#eef1fc">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#1a2456" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              </div>
+              <div class="tpl-name">Sales & Revenue</div>
+              <div class="tpl-desc">Monthly revenue by region and product line, with target tracking.</div>
+              <div class="tpl-cols">
+                <span class="tpl-col-chip" style="background:#eef1fc;color:#1a2456">Month</span>
+                <span class="tpl-col-chip" style="background:#eef1fc;color:#1a2456">Revenue</span>
+                <span class="tpl-col-chip" style="background:#eef1fc;color:#1a2456">Target</span>
+                <span class="tpl-col-chip" style="background:#eef1fc;color:#1a2456">Region</span>
+                <span class="tpl-col-chip" style="background:#eef1fc;color:#1a2456">Product</span>
+              </div>
+              <div class="tpl-rows-note">12 sample rows included</div>
+            </div>
+            <button class="tpl-dl-btn" onclick="downloadTemplate('sales')">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download sales_template.xlsx
+            </button>
+          </div>
+ 
+          <!-- KPI Template -->
+          <div class="tpl-card">
+            <div class="tpl-card-top">
+              <div class="tpl-sheet-icon" style="background:var(--teal-light)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0e6b52" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="tpl-name">Operations / KPIs</div>
+              <div class="tpl-desc">Key performance indicators with actuals vs targets, color-coded by status.</div>
+              <div class="tpl-cols">
+                <span class="tpl-col-chip" style="background:var(--teal-light);color:#0e6b52">KPI</span>
+                <span class="tpl-col-chip" style="background:var(--teal-light);color:#0e6b52">Actual</span>
+                <span class="tpl-col-chip" style="background:var(--teal-light);color:#0e6b52">Target</span>
+                <span class="tpl-col-chip" style="background:var(--teal-light);color:#0e6b52">Unit</span>
+                <span class="tpl-col-chip" style="background:var(--teal-light);color:#0e6b52">Category</span>
+              </div>
+              <div class="tpl-rows-note">8 sample KPIs included</div>
+            </div>
+            <button class="tpl-dl-btn" onclick="downloadTemplate('kpi')">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download kpi_template.xlsx
+            </button>
+          </div>
+ 
+          <!-- Finance Template -->
+          <div class="tpl-card">
+            <div class="tpl-card-top">
+              <div class="tpl-sheet-icon" style="background:var(--amber-light)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#b87214" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="tpl-name">Finance / P&L</div>
+              <div class="tpl-desc">Monthly income statement with revenue, COGS, Opex and EBITDA tracking.</div>
+              <div class="tpl-cols">
+                <span class="tpl-col-chip" style="background:var(--amber-light);color:#b87214">Month</span>
+                <span class="tpl-col-chip" style="background:var(--amber-light);color:#b87214">Revenue</span>
+                <span class="tpl-col-chip" style="background:var(--amber-light);color:#b87214">COGS</span>
+                <span class="tpl-col-chip" style="background:var(--amber-light);color:#b87214">Opex</span>
+                <span class="tpl-col-chip" style="background:var(--amber-light);color:#b87214">EBITDA</span>
+              </div>
+              <div class="tpl-rows-note">6 sample months included</div>
+            </div>
+            <button class="tpl-dl-btn" onclick="downloadTemplate('finance')">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download finance_template.xlsx
+            </button>
+          </div>
+        </div>
+ 
+        <button class="tpl-bundle-btn" onclick="downloadAllTemplates()">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download all 3 templates as a single Excel workbook (.xlsx)
+        </button>
+        <div class="tpl-note">
+          Fill in your actual data, keeping column headers exactly as shown.<br>
+          Then switch to the <strong>Upload data</strong> tab to generate your deck.
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <!-- GENERATE CARD -->
+  <div class="gen-card">
+    <div class="section-label">Step 2 — Generate your deck</div>
+    <div class="status-bar" id="status-msg"></div>
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-label" id="progress-label">Building slides…</div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button class="generate-btn" id="gen-btn" onclick="generateDeck()">Generate PowerPoint deck →</button>
+  </div>
+ 
+  <div class="divider"></div>
+ 
+  <!-- COLUMNS TABLE -->
+  <div id="samples"></div>
+  <div class="section-label">CSV column reference</div>
+  <table class="cols-table">
+    <thead>
+      <tr><th>Module</th><th>Required columns</th><th>Optional columns</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight:600">Sales & Revenue</td>
+        <td><span class="col-tag">Month</span> <span class="col-tag">Revenue</span></td>
+        <td><span class="col-tag">Target</span> <span class="col-tag">Region</span> <span class="col-tag">Product</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:600">Operations / KPIs</td>
+        <td><span class="col-tag">KPI</span> <span class="col-tag">Actual</span></td>
+        <td><span class="col-tag">Target</span> <span class="col-tag">Unit</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:600">Finance / P&L</td>
+        <td><span class="col-tag">Revenue</span></td>
+        <td><span class="col-tag">Month</span> <span class="col-tag">COGS</span> <span class="col-tag">Opex</span> <span class="col-tag">EBITDA</span></td>
+      </tr>
+    </tbody>
+  </table>
+ 
+</div>
+ 
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-avatar">MJ</div>
+      <div>
+        <div class="footer-name">Designed by CA Mayur Jain</div>
+        <div class="footer-title">For Finance Professionals — FP&A, CFO Office & Management Reporting</div>
+      </div>
+    </div>
+    <div class="footer-tags">
+      <span class="footer-tag">MIS Reporting</span>
+      <span class="footer-tag">FP&A</span>
+      <span class="footer-tag">Management Deck</span>
+      <span class="footer-tag">v1.0</span>
+    </div>
+  </div>
+</footer>
+ 
+<script>
+const state = { sales:null, kpi:null, finance:null };
+const now = new Date();
+document.getElementById('report-month').value = now.toISOString().slice(0,7);
+ 
+/* ---- TAB SWITCHING ---- */
+function switchToolTab(name, btn) {
+  document.querySelectorAll('.tool-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tool-pane').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+}
+function switchToolTabById(name) {
+  const tabs = document.querySelectorAll('.tool-tab');
+  const idx = name==='templates' ? 1 : 0;
+  switchToolTab(name, tabs[idx]);
+}
+ 
+/* ---- TEMPLATE DATA ---- */
+const TPL_DATA = {
+  sales: {
+    filename: 'sales_template.xlsx',
+    sheetName: 'Sales_Revenue',
+    headers: ['Month','Revenue','Target','Region','Product'],
+    rows: [
+      ['Jan-2025',850000,900000,'North','Product A'],
+      ['Jan-2025',620000,600000,'South','Product B'],
+      ['Jan-2025',430000,400000,'East','Product A'],
+      ['Feb-2025',910000,900000,'North','Product A'],
+      ['Feb-2025',580000,600000,'South','Product B'],
+      ['Feb-2025',470000,400000,'East','Product A'],
+      ['Mar-2025',980000,950000,'North','Product A'],
+      ['Mar-2025',640000,620000,'South','Product B'],
+      ['Mar-2025',510000,450000,'East','Product C'],
+      ['Apr-2025',1020000,1000000,'North','Product A'],
+      ['Apr-2025',670000,650000,'South','Product B'],
+      ['Apr-2025',490000,480000,'East','Product C'],
+    ],
+    colWidths: [12,14,14,12,14]
+  },
+  kpi: {
+    filename: 'kpi_template.xlsx',
+    sheetName: 'KPIs',
+    headers: ['KPI','Actual','Target','Unit','Category'],
+    rows: [
+      ['Monthly Revenue',4810000,5000000,'IDR','Finance'],
+      ['New Customers',142,150,'Count','Sales'],
+      ['Customer Retention Rate',87,90,'%','Sales'],
+      ['On-Time Delivery',92,95,'%','Operations'],
+      ['Net Promoter Score',48,50,'Score','Customer'],
+      ['Inventory Turnover',6.2,6.5,'x','Operations'],
+      ['Support Tickets Resolved',96,98,'%','Customer'],
+      ['Employee Utilization',81,85,'%','HR'],
+    ],
+    colWidths: [28,12,12,10,14]
+  },
+  finance: {
+    filename: 'finance_template.xlsx',
+    sheetName: 'Finance_PL',
+    headers: ['Month','Revenue','COGS','Opex','EBITDA'],
+    rows: [
+      ['Jan-2025',1900000,950000,380000,570000],
+      ['Feb-2025',1960000,970000,390000,600000],
+      ['Mar-2025',2130000,1010000,400000,720000],
+      ['Apr-2025',2180000,1040000,410000,730000],
+      ['May-2025',2250000,1070000,415000,765000],
+      ['Jun-2025',2310000,1090000,420000,800000],
+    ],
+    colWidths: [12,14,14,12,14]
+  }
+};
+ 
+function buildWorksheet(tpl) {
+  const ws = {};
+  const range = { s:{r:0,c:0}, e:{r:tpl.rows.length, c:tpl.headers.length-1} };
+ 
+  // Header row styling
+  tpl.headers.forEach((h,c) => {
+    const cell = { v:h, t:'s', s:{ font:{bold:true,color:{rgb:'FFFFFF'}}, fill:{fgColor:{rgb:'1A2456'}}, alignment:{horizontal:'center'} } };
+    ws[XLSX.utils.encode_cell({r:0,c})] = cell;
+  });
+ 
+  // Data rows
+  tpl.rows.forEach((row,ri) => {
+    row.forEach((val,ci) => {
+      const t = typeof val === 'number' ? 'n' : 's';
+      ws[XLSX.utils.encode_cell({r:ri+1,c:ci})] = { v:val, t };
+    });
+  });
+ 
+  ws['!ref'] = XLSX.utils.encode_range(range);
+  ws['!cols'] = tpl.colWidths.map(w=>({wch:w}));
+  return ws;
+}
+ 
+function downloadTemplate(type) {
+  const tpl = TPL_DATA[type];
+  const wb = XLSX.utils.book_new();
+  const ws = buildWorksheet(tpl);
+  XLSX.utils.book_append_sheet(wb, ws, tpl.sheetName);
+  XLSX.writeFile(wb, tpl.filename);
+}
+ 
+function downloadAllTemplates() {
+  const wb = XLSX.utils.book_new();
+  Object.values(TPL_DATA).forEach(tpl => {
+    const ws = buildWorksheet(tpl);
+    XLSX.utils.book_append_sheet(wb, ws, tpl.sheetName);
+  });
+  XLSX.writeFile(wb, 'MIS_Templates_CA_Mayur_Jain.xlsx');
+}
+ 
+function handleFile(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const box = document.getElementById('box-'+type);
+  const lbl = document.getElementById('lbl-'+type);
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext==='csv') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const result = Papa.parse(e.target.result,{header:true,skipEmptyLines:true});
+      state[type]=result.data; lbl.textContent=file.name;
+      box.classList.add('has-file'); showPreview();
+    };
+    reader.readAsText(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result,{type:'binary'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      state[type]=XLSX.utils.sheet_to_json(ws,{defval:''});
+      lbl.textContent=file.name; box.classList.add('has-file'); showPreview();
+    };
+    reader.readAsBinaryString(file);
+  }
+}
+ 
+let activeTab='sales';
+function showPreview() {
+  const loaded=Object.keys(state).filter(k=>state[k]);
+  if(!loaded.length) return;
+  document.getElementById('preview-section').style.display='';
+  document.getElementById('preview-tabs').innerHTML=loaded.map(k=>
+    `<button class="tab ${k===activeTab?'active':''}" onclick="setTab('${k}')">${{sales:'Sales',kpi:'KPIs',finance:'Finance'}[k]}</button>`
+  ).join('');
+  renderTable(state[activeTab]?activeTab:loaded[0]);
+}
+function setTab(t){activeTab=t;showPreview();}
+function renderTable(type){
+  const data=state[type]; if(!data||!data.length) return;
+  const cols=Object.keys(data[0]), rows=data.slice(0,6);
+  let html=`<table class="preview-table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(r=>{html+=`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`;});
+  html+='</tbody></table>';
+  if(data.length>6) html+=`<div style="font-size:11px;color:var(--text-muted);margin-top:5px">Showing 6 of ${data.length} rows</div>`;
+  document.getElementById('preview-content').innerHTML=html;
+}
+ 
+function setProgress(pct,label){
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=label;
+}
+function showStatus(msg,type='info'){
+  const el=document.getElementById('status-msg');
+  el.textContent=msg; el.className='status-bar '+type; el.style.display='';
+}
+function fmt(n){
+  const v=parseFloat(String(n).replace(/,/g,''));
+  if(isNaN(v)) return n;
+  if(Math.abs(v)>=1e9) return (v/1e9).toFixed(1)+'B';
+  if(Math.abs(v)>=1e6) return (v/1e6).toFixed(1)+'M';
+  if(Math.abs(v)>=1e3) return (v/1e3).toFixed(1)+'K';
+  return v.toFixed(0);
+}
+function num(v){return parseFloat(String(v||0).replace(/,/g,''))||0;}
+ 
+async function generateDeck(){
+  if(!Object.values(state).filter(Boolean).length){showStatus('Please upload at least one data file to continue.','error');return;}
+  const company=document.getElementById('company-name').value||'Company';
+  const monthVal=document.getElementById('report-month').value;
+  const monthLabel=monthVal?new Date(monthVal+'-01').toLocaleString('default',{month:'long',year:'numeric'}):'Monthly Report';
+  document.getElementById('gen-btn').disabled=true;
+  document.getElementById('progress-wrap').style.display='';
+  showStatus('Building your management deck…','info');
+ 
+  const NAVY='1E2761',ICE='CADCFC',WHITE='FFFFFF';
+  const TEAL='0F6E56',TEAL_LIGHT='E1F5EE';
+  const AMBER='BA7517',AMBER_LIGHT='FAEEDA';
+  const RED='A32D2D',RED_LIGHT='FCEBEB';
+  const GRAY='888780',LGRAY='F1EFE8';
+  const CREDIT='Designed by CA Mayur Jain · For Finance Professionals';
+ 
+  await new Promise(r=>setTimeout(r,50));
+  setProgress(5,'Initialising presentation…');
+ 
+  const pptx=new PptxGenJS();
+  pptx.layout='LAYOUT_16x9';
+  pptx.title=`${company} — ${monthLabel} Management Deck`;
+ 
+  function header(slide,title,sub){
+    slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.7,fill:{color:NAVY}});
+    slide.addText(title,{x:0.4,y:0.08,w:8,h:0.55,fontSize:18,bold:true,color:WHITE,fontFace:'Calibri',margin:0});
+    if(sub) slide.addText(sub,{x:0.4,y:0.75,w:9,h:0.3,fontSize:11,color:GRAY,fontFace:'Calibri',margin:0});
+    slide.addText(`${company}  ·  ${monthLabel}  ·  ${CREDIT}`,{x:0,y:5.3,w:10,h:0.3,fontSize:8,color:GRAY,align:'center',fontFace:'Calibri'});
+  }
+ 
+  function kpiCard(slide,x,y,w,h,label,value,delta,color,lc){
+    slide.addShape(pptx.ShapeType.rect,{x,y,w,h,fill:{color:lc},line:{color,width:1}});
+    slide.addText(label,{x:x+0.1,y:y+0.1,w:w-0.2,h:0.3,fontSize:9,color:GRAY,fontFace:'Calibri',margin:0});
+    slide.addText(value,{x:x+0.1,y:y+0.38,w:w-0.2,h:0.55,fontSize:22,bold:true,color,fontFace:'Calibri',margin:0});
+    if(delta) slide.addText(delta,{x:x+0.1,y:y+0.88,w:w-0.2,h:0.22,fontSize:9,color:GRAY,fontFace:'Calibri',margin:0});
+  }
+ 
+  await new Promise(r=>setTimeout(r,30));
+  setProgress(15,'Creating title slide…');
+ 
+  const s1=pptx.addSlide();
+  s1.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:5.625,fill:{color:NAVY}});
+  s1.addShape(pptx.ShapeType.rect,{x:0,y:3.8,w:10,h:1.825,fill:{color:'162055'}});
+  s1.addText('MANAGEMENT REPORT',{x:0.8,y:1.2,w:8.5,h:0.5,fontSize:13,color:ICE,fontFace:'Calibri',charSpacing:4,margin:0});
+  s1.addText(company,{x:0.8,y:1.7,w:8.5,h:1.1,fontSize:44,bold:true,color:WHITE,fontFace:'Calibri',margin:0});
+  s1.addText(monthLabel,{x:0.8,y:2.85,w:8.5,h:0.5,fontSize:20,color:ICE,fontFace:'Calibri',margin:0});
+  s1.addShape(pptx.ShapeType.rect,{x:0.8,y:3.5,w:1.2,h:0.06,fill:{color:'C9A84C'}});
+  s1.addText('Confidential — Internal Use Only',{x:0.8,y:4.0,w:8,h:0.3,fontSize:10,color:ICE,fontFace:'Calibri',margin:0});
+  s1.addText(CREDIT,{x:0.8,y:4.4,w:8,h:0.3,fontSize:9,color:'C9A84C',fontFace:'Calibri',margin:0});
+ 
+  setProgress(25,'Building sales slide…');
+  await new Promise(r=>setTimeout(r,30));
+ 
+  if(state.sales&&state.sales.length){
+    const data=state.sales;
+    const revKey=Object.keys(data[0]).find(k=>/rev|sales|amount/i.test(k));
+    const tgtKey=Object.keys(data[0]).find(k=>/target|budget|plan/i.test(k));
+    const mKey=Object.keys(data[0]).find(k=>/month|period|date/i.test(k));
+    const rKey=Object.keys(data[0]).find(k=>/region|area|zone/i.test(k));
+    const totalRev=data.reduce((s,r)=>s+num(revKey?r[revKey]:0),0);
+    const totalTgt=tgtKey?data.reduce((s,r)=>s+num(r[tgtKey]),0):0;
+    const achPct=totalTgt>0?((totalRev/totalTgt)*100).toFixed(1):null;
+    const s2=pptx.addSlide(); s2.background={color:'F8F9FA'};
+    header(s2,'Sales & Revenue Overview','Performance against targets');
+    kpiCard(s2,0.4,1.0,2.2,1.3,'Total Revenue',fmt(totalRev),null,TEAL,TEAL_LIGHT);
+    if(totalTgt) kpiCard(s2,2.8,1.0,2.2,1.3,'Revenue Target',fmt(totalTgt),null,NAVY,'E8EBF5');
+    if(achPct) kpiCard(s2,5.2,1.0,2.2,1.3,'Achievement %',achPct+'%',null,parseFloat(achPct)>=100?TEAL:AMBER,parseFloat(achPct)>=100?TEAL_LIGHT:AMBER_LIGHT);
+    kpiCard(s2,7.6,1.0,1.9,1.3,'Records',String(data.length),null,GRAY,LGRAY);
+    if(mKey&&revKey&&data.length<=18){
+      const cd=[{name:'Revenue',labels:data.map(r=>String(r[mKey]||'')),values:data.map(r=>num(r[revKey]))}];
+      if(tgtKey) cd.push({name:'Target',labels:data.map(r=>String(r[mKey]||'')),values:data.map(r=>num(r[tgtKey]))});
+      s2.addChart(pptx.ChartType.bar,cd,{x:0.4,y:2.5,w:9.2,h:2.8,barDir:'col',chartColors:tgtKey?[TEAL,AMBER]:[TEAL],chartArea:{fill:{color:WHITE}},catAxisLabelColor:GRAY,valAxisLabelColor:GRAY,valGridLine:{color:'E2E8F0',size:0.5},catGridLine:{style:'none'},showValue:true,dataLabelColor:'1E293B',showLegend:!!tgtKey,legendPos:'b',legendFontSize:9});
+    } else if(revKey){
+      const byReg={};
+      data.forEach(r=>{const reg=rKey?(r[rKey]||'Other'):'Total';byReg[reg]=(byReg[reg]||0)+num(r[revKey]);});
+      const labels=Object.keys(byReg).slice(0,10), values=labels.map(l=>byReg[l]);
+      s2.addChart(pptx.ChartType.bar,[{name:'Revenue',labels,values}],{x:0.4,y:2.5,w:6,h:2.8,barDir:'col',chartColors:[TEAL],chartArea:{fill:{color:WHITE}},catAxisLabelColor:GRAY,valAxisLabelColor:GRAY,valGridLine:{color:'E2E8F0',size:0.5},catGridLine:{style:'none'},showValue:true,dataLabelColor:'1E293B',showLegend:false});
+      s2.addChart(pptx.ChartType.pie,[{name:'Share',labels,values}],{x:6.6,y:2.5,w:3.2,h:2.8,chartColors:[TEAL,'0F6E56','1D9E75','5DCAA5','9FE1CB'],showPercent:true,showLegend:true,legendPos:'b',legendFontSize:8});
+    }
+  }
+ 
+  setProgress(45,'Building KPI slides…');
+  await new Promise(r=>setTimeout(r,30));
+ 
+  if(state.kpi&&state.kpi.length){
+    const data=state.kpi;
+    const kKey=Object.keys(data[0]).find(k=>/kpi|metric|name|indicator/i.test(k))||Object.keys(data[0])[0];
+    const aKey=Object.keys(data[0]).find(k=>/actual|value|result|current/i.test(k));
+    const tKey=Object.keys(data[0]).find(k=>/target|goal|budget|plan/i.test(k));
+    const uKey=Object.keys(data[0]).find(k=>/unit|uom/i.test(k));
+    const s3=pptx.addSlide(); s3.background={color:'F8F9FA'};
+    header(s3,'Operations & KPI Dashboard','Key performance indicators vs targets');
+    const items=data.slice(0,8), cols=Math.min(4,items.length), cw=9.2/cols;
+    const rows=Math.ceil(items.length/cols), ch=rows>1?1.4:1.7;
+    items.forEach((row,i)=>{
+      const c=i%cols,r=Math.floor(i/cols),x=0.4+c*cw,y=1.1+r*(ch+0.15);
+      const actual=aKey?num(row[aKey]):null, target=tKey?num(row[tKey]):null;
+      const pct=actual!==null&&target&&target!==0?(actual/target*100):null;
+      const color=pct===null?NAVY:pct>=100?TEAL:pct>=80?AMBER:RED;
+      const lc=pct===null?'E8EBF5':pct>=100?TEAL_LIGHT:pct>=80?AMBER_LIGHT:RED_LIGHT;
+      const unit=uKey?(row[uKey]||''):'';
+      kpiCard(s3,x,y,cw-0.15,ch,String(row[kKey]||'KPI'),actual!==null?fmt(actual)+(unit?' '+unit:''):'—',pct!==null?`vs target: ${pct.toFixed(0)}%`:'',color,lc);
+    });
+    if(aKey&&tKey&&data.length<=12){
+      const s3b=pptx.addSlide(); s3b.background={color:'F8F9FA'};
+      header(s3b,'KPI vs Target — Detail','Actual vs target comparison');
+      const labels=data.map(r=>String(r[kKey]||'').slice(0,20));
+      s3b.addChart(pptx.ChartType.bar,[{name:'Actual',labels,values:data.map(r=>num(r[aKey]))},{name:'Target',labels,values:data.map(r=>num(r[tKey]))}],{x:0.4,y:0.9,w:9.2,h:4.4,barDir:'col',chartColors:[TEAL,AMBER],chartArea:{fill:{color:WHITE}},catAxisLabelColor:GRAY,valAxisLabelColor:GRAY,valGridLine:{color:'E2E8F0',size:0.5},catGridLine:{style:'none'},showValue:true,dataLabelColor:'1E293B',showLegend:true,legendPos:'b',legendFontSize:9});
+    }
+  }
+ 
+  setProgress(65,'Building finance slide…');
+  await new Promise(r=>setTimeout(r,30));
+ 
+  if(state.finance&&state.finance.length){
+    const data=state.finance;
+    const mKey=Object.keys(data[0]).find(k=>/month|period|date/i.test(k));
+    const rKey=Object.keys(data[0]).find(k=>/rev|sales/i.test(k));
+    const cKey=Object.keys(data[0]).find(k=>/cogs|cost.of/i.test(k));
+    const oKey=Object.keys(data[0]).find(k=>/opex|operat/i.test(k));
+    const eKey=Object.keys(data[0]).find(k=>/ebitda|profit|margin/i.test(k));
+    const tR=rKey?data.reduce((s,r)=>s+num(r[rKey]),0):0;
+    const tC=cKey?data.reduce((s,r)=>s+num(r[cKey]),0):0;
+    const tO=oKey?data.reduce((s,r)=>s+num(r[oKey]),0):0;
+    const tE=eKey?data.reduce((s,r)=>s+num(r[eKey]),0):tR-tC-tO;
+    const gm=tR>0?((tR-tC)/tR*100).toFixed(1):null;
+    const em=tR>0?(tE/tR*100).toFixed(1):null;
+    const s4=pptx.addSlide(); s4.background={color:'F8F9FA'};
+    header(s4,'Finance & P&L Summary','Income statement highlights');
+    kpiCard(s4,0.4,1.0,2.1,1.3,'Revenue',fmt(tR),null,TEAL,TEAL_LIGHT);
+    kpiCard(s4,2.65,1.0,2.1,1.3,'COGS',fmt(tC),null,NAVY,'E8EBF5');
+    kpiCard(s4,4.9,1.0,2.1,1.3,'EBITDA',fmt(tE),em?'Margin: '+em+'%':null,tE>=0?TEAL:RED,tE>=0?TEAL_LIGHT:RED_LIGHT);
+    if(gm) kpiCard(s4,7.15,1.0,2.3,1.3,'Gross Margin',gm+'%',null,AMBER,AMBER_LIGHT);
+    if(mKey&&rKey&&data.length>1){
+      const cs=[{name:'Revenue',labels:data.map(r=>String(r[mKey]||'')),values:data.map(r=>num(r[rKey]))}];
+      if(eKey||(rKey&&cKey)) cs.push({name:'EBITDA',labels:data.map(r=>String(r[mKey]||'')),values:data.map(r=>num(r[eKey])||num(r[rKey])-num(r[cKey]||0)-num(r[oKey]||0))});
+      s4.addChart(pptx.ChartType.line,cs,{x:0.4,y:2.5,w:9.2,h:2.8,chartColors:[TEAL,AMBER],lineSize:3,lineSmooth:true,chartArea:{fill:{color:WHITE}},catAxisLabelColor:GRAY,valAxisLabelColor:GRAY,valGridLine:{color:'E2E8F0',size:0.5},catGridLine:{style:'none'},showValue:false,showLegend:true,legendPos:'b',legendFontSize:9});
+    } else {
+      s4.addChart(pptx.ChartType.bar,[{name:'Amount',labels:['Revenue','COGS','Opex','EBITDA'],values:[tR,-tC,-tO,tE]}],{x:0.4,y:2.5,w:9.2,h:2.8,barDir:'col',chartColors:[TEAL,RED,AMBER,tE>=0?TEAL:RED],chartArea:{fill:{color:WHITE}},catAxisLabelColor:GRAY,valAxisLabelColor:GRAY,valGridLine:{color:'E2E8F0',size:0.5},catGridLine:{style:'none'},showValue:true,dataLabelColor:'1E293B',showLegend:false});
+    }
+  }
+ 
+  setProgress(85,'Adding summary slide…');
+  await new Promise(r=>setTimeout(r,30));
+ 
+  const sf=pptx.addSlide();
+  sf.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:5.625,fill:{color:NAVY}});
+  sf.addShape(pptx.ShapeType.rect,{x:0,y:3.5,w:10,h:2.125,fill:{color:'162055'}});
+  sf.addText('Key Takeaways & Next Steps',{x:0.8,y:1.1,w:8.5,h:0.5,fontSize:13,color:ICE,fontFace:'Calibri',charSpacing:3,margin:0});
+  const bullets=[];
+  if(state.sales) bullets.push({text:`Sales data reviewed — ${state.sales.length} records processed`,options:{bullet:true,color:WHITE,breakLine:true}});
+  if(state.kpi) bullets.push({text:`KPI dashboard updated — ${state.kpi.length} metrics tracked`,options:{bullet:true,color:WHITE,breakLine:true}});
+  if(state.finance) bullets.push({text:`Finance P&L summarized — ${state.finance.length} periods`,options:{bullet:true,color:WHITE,breakLine:true}});
+  bullets.push({text:'Review with leadership team and align on action items',options:{bullet:true,color:ICE}});
+  if(bullets.length) sf.addText(bullets,{x:0.8,y:1.75,w:8.5,h:1.5,fontSize:13,fontFace:'Calibri',paraSpaceAfter:6,margin:0});
+  sf.addText(CREDIT,{x:0,y:4.7,w:10,h:0.3,fontSize:9,color:'C9A84C',align:'center',fontFace:'Calibri'});
+  sf.addText(`${company}  ·  ${monthLabel}  ·  Confidential`,{x:0,y:5.1,w:10,h:0.3,fontSize:8,color:ICE,align:'center',fontFace:'Calibri',italic:true});
+ 
+  setProgress(95,'Saving file…');
+  await new Promise(r=>setTimeout(r,30));
+ 
+  const filename=`${company.replace(/\s+/g,'_')}_Management_Deck_${monthVal||'report'}.pptx`;
+  await pptx.writeFile({fileName:filename});
+ 
+  setProgress(100,'Done!');
+  showStatus('Your deck has been generated and downloaded successfully!','success');
+  document.getElementById('gen-btn').disabled=false;
+  document.getElementById('progress-wrap').style.display='none';
+}
+</script>
+</body>
+</html>
+ 
